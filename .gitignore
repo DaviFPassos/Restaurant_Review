@@ -1,1 +1,74 @@
-/venv_nlp
+# Python virtual environments
+venv/
+venv_nlp/
+env/
+.venv/
+ENV/
+
+# Python cache and compiled files
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+build/
+
+# Jupyter Notebook artifacts
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Machine Learning model binaries (Tracked in notebooks, excluded from production Git)
+*.keras
+*.h5
+*.pkl
+*.joblib
+model/
+models/
+
+# GO (GOLANG) ARTIFACTS
+# Compiled binaries for Go Gateway service
+gateway-service-go/gateway
+gateway-service-go/gateway.exe
+
+# NODE.JS & REACT FRONT-END (VITE)
+# Dependencies and local builds inside the front-end directory
+restaurant-review-front/node_modules/
+restaurant-review-front/dist/
+restaurant-review-front/dist-ssr/
+
+# LOGS & DEBUGGING
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ENVIRONMENT VARIABLES & SECRETS
+.env
+.env.local
+.env.*.local
+*.local
+
+# IDE, EDITORS & OS SPECIFIC FILES
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# MISCELLANEOUS
+.tmp/
+*.tmp
+temp/
+.docker/

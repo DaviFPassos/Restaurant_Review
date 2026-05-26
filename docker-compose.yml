@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # Machine Learning Microservice (Python/FastAPI)
+  # Handles sentiment prediction using trained neural network model
+  # Port: 8000 - Internal ML prediction endpoint
+  ml-service:
+    build:
+      context: ./ml-service-python
+      dockerfile: Dockerfile
+    container_name: ml_service_python
+    ports:
+      - "8000:8000"
+    networks:
+      - restaurant-network
+    restart: always
+
+  # High-Performance API Gateway (Go 1.23)
+  # Routes client requests to ML service and handles request validation
+  # Port: 8080 - External API endpoint for clients
+  gateway-service:
+    build:
+      context: ./gateway-service-go
+      dockerfile: Dockerfile
+    container_name: gateway_service_go
+    ports:
+      - "8080:8080"
+    environment:
+      # Point to ML service using Docker network DNS
+      # "http://ml-service:8000" resolves within Docker network
+      - ML_SERVICE_URL=http://ml-service:8000/v1/predict
+      # Enable Gin release mode for optimal performance
+      - GIN_MODE=release
+    depends_on:
+      # Ensure ML service starts before gateway
+      - ml-service
+    networks:
+      - restaurant-network
+    restart: always
+
+  frontend:
+    build:
+      context: ./restaurant-review-front
+      dockerfile: Dockerfile
+    container_name: restaurant-review-front
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./restaurant-review-front:/app
+      - /app/node_modules
+    networks:
+      - restaurant-network
+    environment:
+      - VITE_API_GATEWAY_URL=http://localhost:8080 #URL eXample of gateway in Go
+    restart: always
+networks:
+  restaurant-network:
+    driver: bridge
