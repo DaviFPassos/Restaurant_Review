@@ -36,6 +36,8 @@ gateway-service-go/gateway.exe
 restaurant-review-front/node_modules/
 restaurant-review-front/dist/
 restaurant-review-front/dist-ssr/
+# Ignore internal build tools dependency cache
+restaurant-review-front/.vite/
 
 # LOGS & DEBUGGING
 logs/

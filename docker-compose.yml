@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  # NoSQL Database for Data Persistence and MLOps logging
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_restaurant
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - restaurant-network
+    restart: always
+
   # Machine Learning Microservice (Python/FastAPI)
   # Handles sentiment prediction using trained neural network model
   # Port: 8000 - Internal ML prediction endpoint
@@ -29,6 +41,8 @@ services:
       # Point to ML service using Docker network DNS
       # "http://ml-service:8000" resolves within Docker network
       - ML_SERVICE_URL=http://ml-service:8000/v1/predict
+      # Connecting to MongoDB container using service name DNS resolution
+      - MONGO_URI=mongodb://mongodb:27017
       # Enable Gin release mode for optimal performance
       - GIN_MODE=release
     depends_on:
@@ -38,6 +52,9 @@ services:
       - restaurant-network
     restart: always
 
+  # Frontend User Interface (React / Vite)
+  # Captures consumer reviews graphical input
+  # Port: 5173 - External web user access point
   frontend:
     build:
       context: ./restaurant-review-front
@@ -51,8 +68,12 @@ services:
     networks:
       - restaurant-network
     environment:
-      - VITE_API_GATEWAY_URL=http://localhost:8080 #URL eXample of gateway in Go
+      - VITE_API_GATEWAY_URL=http://localhost:8080
     restart: always
+
+volumes:
+  mongo-data:
+
 networks:
   restaurant-network:
     driver: bridge
