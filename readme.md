@@ -77,7 +77,7 @@ nlp_restaurant_review/
 │   └── vite.config.js
 └── notebooks/                      # Scientific R&D Sandbox
     ├── p1.ipynb                    # Jupyter Notebook with Matplotlib/Seaborn analytics
-    └── Restaurant_Reviews.tsv      # Root dataset source records
+    └── Restaurant_Reviews.csv      # Root dataset source records
 ```
 ---
 # 🛠️ DevOps & Containerization Practices
