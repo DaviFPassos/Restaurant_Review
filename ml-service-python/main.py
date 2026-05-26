@@ -4,7 +4,7 @@ import tensorflow as tf
 import numpy as np
 import joblib
 
-app = FastAPI(title="Restaurant Review ML Service", version="1.0")
+app = FastAPI(title="Restaurant Review ML Service", version="2.0")
 
 # Load trained model and label encoder once at startup (improves performance)
 # Keep these in memory for all predictions during API lifetime

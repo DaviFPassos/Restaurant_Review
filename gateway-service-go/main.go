@@ -21,6 +21,8 @@ func getMLServiceURL() string {
     return "http://localhost:8000/v1/predict"
 }
 
+
+
 // ReviewRequest represents the JSON payload sent by clients to this API
 // The binding:"required" tag ensures the field is validated and non-empty
 type ReviewRequest struct {
@@ -40,6 +42,19 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 
 	r := gin.Default()
+
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
+	})
 
 	// Configure optimized HTTP client with 5-second timeout
 	// This is a DevOps best practice to prevent hanging connections

@@ -11,6 +11,8 @@ services:
     container_name: ml_service_python
     ports:
       - "8000:8000"
+    networks:
+      - restaurant-network
     restart: always
 
   # High-Performance API Gateway (Go 1.23)
@@ -32,4 +34,25 @@ services:
     depends_on:
       # Ensure ML service starts before gateway
       - ml-service
+    networks:
+      - restaurant-network
     restart: always
+
+  frontend:
+    build:
+      context: ./restaurant-review-front
+      dockerfile: Dockerfile
+    container_name: restaurant-review-front
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./restaurant-review-front:/app
+      - /app/node_modules
+    networks:
+      - restaurant-network
+    environment:
+      - VITE_API_GATEWAY_URL=http://localhost:8080 #URL eXample of gateway in Go
+    restart: always
+networks:
+  restaurant-network:
+    driver: bridge

@@ -6,24 +6,19 @@ env/
 ENV/
 
 # Python cache and compiled files
-__pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 *.egg-info/
-dist/
 build/
 
-# IDE and Editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-.DS_Store
+# Jupyter Notebook artifacts
+.ipynb_checkpoints/
+*.ipynb_checkpoints
 
-# Machine Learning artifacts
+# Machine Learning model binaries (Tracked in notebooks, excluded from production Git)
 *.keras
 *.h5
 *.pkl
@@ -31,33 +26,49 @@ build/
 model/
 models/
 
-# Jupyter Notebook
-.ipynb_checkpoints/
-*.ipynb_checkpoints
-
-# Environment variables
-.env
-.env.local
-.env.*.local
-
-# Logs
-*.log
-logs/
-
-# Temporary files
-.tmp/
-*.tmp
-temp/
-
-# Go binaries
+# GO (GOLANG) ARTIFACTS
+# Compiled binaries for Go Gateway service
 gateway-service-go/gateway
 gateway-service-go/gateway.exe
 
-# Docker artifacts
-.docker/
+# NODE.JS & REACT FRONT-END (VITE)
+# Dependencies and local builds inside the front-end directory
+restaurant-review-front/node_modules/
+restaurant-review-front/dist/
+restaurant-review-front/dist-ssr/
 
-# OS specific
-.DS_Store
-Thumbs.db
+# LOGS & DEBUGGING
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ENVIRONMENT VARIABLES & SECRETS
+.env
+.env.local
+.env.*.local
+*.local
+
+# IDE, EDITORS & OS SPECIFIC FILES
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 *.swp
 *.swo
+*~
+.DS_Store
+Thumbs.db
+
+# MISCELLANEOUS
+.tmp/
+*.tmp
+temp/
+.docker/
