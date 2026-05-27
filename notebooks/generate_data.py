@@ -1,4 +1,5 @@
 import random
+import os
 import csv
 
 # Vocabulary banks tailored for long-form contextual challenges
@@ -33,10 +34,19 @@ for _ in range(total_reviews // 2):
 # Shuffle to mix positive and negative distributions for the neural net
 random.shuffle(generated_rows)
 
+filename = "Restaurant_Reviews.csv"
+if os.path.exists("notebooks"):
+    filename = os.path.join("notebooks", filename)
+
+file_exists = os.path.isfile(filename)
+
 # Append directly to your source file or save as a new expansion pack
-with open('expanded_reviews.csv', 'w', encoding='utf-8') as f:
-    f.write("Review;Liked\n")  # Header
+with open(filename, 'a', encoding='utf-8') as f:
+    if not file_exists:
+        f.write("Review;Liked\n")  # Header
     for row in generated_rows:
         f.write(row + "\n")
 
-print(f"🎉 Success! Generated {total_reviews} long-form complex reviews with context inversions inside 'expanded_reviews.csv'.")
+print(f"Success! Generated {total_reviews} long-form complex reviews with context inversions inside 'Restaurant_Reviews.csv'.")
+print(f"[MLOps Success] Dynamic text appended directly into the existing file!")
+print(f"Added {total_reviews} brand new long-form rows to: {filename}")
