@@ -4,3 +4,4 @@ tensorflow==2.16.1
 joblib==1.4.2
 scikit-learn==1.5.0
 pydantic==2.7.4
+pymongo[srv]>=4.5.0

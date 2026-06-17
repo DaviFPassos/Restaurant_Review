@@ -126,7 +126,7 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
 
-  const analyzeSentiment = async () => {
+const analyzeSentiment = async () => {
     if (!review.trim()) {
       setError('Please enter a valid review before analyzing.');
       return;
@@ -137,10 +137,24 @@ export default function App() {
     setResult(null);
 
     try {
-      const response = await fetch('http://localhost:8080/api/review', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ review_text: review })
+      // DevOps Dynamic Clean Mapping:
+      // Pull and clean up environment gateway string to protect against extra trailing slashes
+      let gatewayBaseURL = import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8080';
+      
+      // Remove trailing slash if present to avoid dual-slash structural breaks (e.g., http://localhost:8080//api)
+      if (gatewayBaseURL.endsWith('/')) {
+        gatewayBaseURL = gatewayBaseURL.slice(0, -1);
+      }
+      
+      const targetEndpoint = `${gatewayBaseURL}/api/review`;
+      
+      // LOG THE EXACT PACKET DESTINATION FOR DISCOVERING CORS/ROUTING BREACHES
+      console.log("[DevOps Debug] Dispatched network packet target destination:", targetEndpoint);
+
+      const response = await fetch('/api/review', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ review_text: review })
       });
 
       const json = await response.json();
@@ -151,7 +165,8 @@ export default function App() {
         setError(json.error || 'An error occurred while processing the request.');
       }
     } catch (err) {
-      setError('Could not connect to Go Gateway. Please check if your Docker containers are active.');
+      // Dynamic fallback message that catches actual protocol/CORS mismatch anomalies
+      setError('Could not connect to Go Gateway. Please ensure ports or dynamic tunnels are actively exposed.');
     } finally {
       setLoading(false);
     }

@@ -1,17 +1,6 @@
 version: '3.8'
 
 services:
-  # NoSQL Database for Data Persistence and MLOps logging
-  mongodb:
-    image: mongo:latest
-    container_name: mongodb_restaurant
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    networks:
-      - restaurant-network
-    restart: always
 
   # Machine Learning Microservice (Python/FastAPI)
   # Handles sentiment prediction using trained neural network model
@@ -23,6 +12,8 @@ services:
     container_name: ml_service_python
     ports:
       - "8000:8000"
+    env_file:
+      - .env # Injects cloud MONGO_URI string into Python runtime
     networks:
       - restaurant-network
     restart: always
@@ -37,12 +28,12 @@ services:
     container_name: gateway_service_go
     ports:
       - "8080:8080"
+    env_file:
+      - .env # Injects cloud MONGO_URI string into Go runtime
     environment:
       # Point to ML service using Docker network DNS
       # "http://ml-service:8000" resolves within Docker network
       - ML_SERVICE_URL=http://ml-service:8000/v1/predict
-      # Connecting to MongoDB container using service name DNS resolution
-      - MONGO_URI=mongodb://mongodb:27017
       # Enable Gin release mode for optimal performance
       - GIN_MODE=release
     depends_on:
@@ -68,11 +59,10 @@ services:
     networks:
       - restaurant-network
     environment:
+      # DevOps Best Practice: Explicitly points the web build to look for your local Go engine
+      # This allows ngrok to safely pull the user interface while transactions find your API port
       - VITE_API_GATEWAY_URL=http://localhost:8080
     restart: always
-
-volumes:
-  mongo-data:
 
 networks:
   restaurant-network:
