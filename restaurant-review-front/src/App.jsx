@@ -126,7 +126,7 @@ export default function App() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
 
-  const analyzeSentiment = async () => {
+const analyzeSentiment = async () => {
     if (!review.trim()) {
       setError('Please enter a valid review before analyzing.');
       return;
@@ -137,7 +137,9 @@ export default function App() {
     setResult(null);
 
     try {
-      const response = await fetch('http://localhost:8080/api/review', {
+      // Use relative URL - proxy in vite.config.js routes /api/* to gateway-service
+      // This works for both localhost and ngrok access
+      const response = await fetch('/api/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ review_text: review })
@@ -151,7 +153,8 @@ export default function App() {
         setError(json.error || 'An error occurred while processing the request.');
       }
     } catch (err) {
-      setError('Could not connect to Go Gateway. Please check if your Docker containers are active.');
+      // Dynamic fallback message that catches actual protocol/CORS mismatch anomalies
+      setError('Could not connect to Go Gateway. Please ensure ports or dynamic tunnels are actively exposed.');
     } finally {
       setLoading(false);
     }

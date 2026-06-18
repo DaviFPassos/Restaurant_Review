@@ -23,17 +23,18 @@ var mongoCollection *mongo.Collection
 // getMLServiceURL retrieves the ML service endpoint from environment variables
 // Defaults to localhost:8000 for development, but allows override via ML_SERVICE_URL env var
 func getMLServiceURL() string {
-    if url := os.Getenv("ML_SERVICE_URL"); url != "" {
-        return url
-    }
-    return "http://localhost:8000/v1/predict"
+	if url := os.Getenv("ML_SERVICE_URL"); url != "" {
+		return url
+	}
+	return "http://localhost:8000/v1/predict"
 }
 
+// getMongoURI fetches the MongoDB connection target string from environment variables
 func getMongoURI() string {
-	if uri:= os.Getenv("MONGO_URI"); uri != "" {
+	if uri := os.Getenv("MONGO_URI"); uri != "" {
 		return uri
 	}
-	return "mongo;//localhost:27017"
+	return "mongodb://localhost:27017"
 }
 
 // ReviewRequest represents the JSON payload sent by clients to this API
@@ -50,8 +51,7 @@ type MLResponse struct {
 	Confidence     float64 `json:"confidence"`
 }
 
-// initMongoDB to initialize database connection
-
+// initMongoDB initializes the structural connection state with the target cluster database
 func initMongoDB() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -59,28 +59,29 @@ func initMongoDB() {
 	clientOptions := options.Client().ApplyURI(getMongoURI())
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		log.Fatalf("Failed to connnect to MOngoDB: %v", err)
+		log.Fatalf("Failed to connect to MongoDB cluster target: %v", err)
 	}
 
-	// Look if connection is actually activated (PING)
+	// Verify if the background handshake is successfully authenticated with the cluster (PING)
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		log.Fatalf("MongoDB ping faield: %v", err)
+		log.Fatalf("MongoDB Atlas cluster topology ping failed: %v", err)
 	}
 
-	// Defines database 'restaurant_db' and collection 'reviews'
-	mongoCollection = client.Database("restaurant_db").Collection("reviews")
-	log.Println("Successfully connected to MongoDB!")
+	// Targets matching operational namespaces defined within the core pipeline layers
+	mongoCollection = client.Database("restaurant_review_db").Collection("reviews_history")
+	log.Println("Successfully connected to the MongoDB Cloud Infrastructure!")
 }
 
 func main() {
-	// Initialize databank before upload API
+	// Initialize database layer before spinning up the router layers
 	initMongoDB()
 
 	// Set Gin framework to release mode for maximum performance and minimal logging
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
+	// CORS Core Pipeline Middleware Layer for Frontend Interceptor Handshakes
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
@@ -150,22 +151,23 @@ func main() {
 			return
 		}
 		
-		// Asynchronous Record on MOngoDB
-		go func (text string, res MLResponse)  {
-			dbCtx, dbCancel := context.WithTimeout(context.Background(), 2*time.Second)
+		// Asynchronous logging operation dispatched inside an isolated Go Routine thread
+		// Prevents backend persistence delays from blocking the user client response time
+		go func(text string, res MLResponse) {
+			dbCtx, dbCancel := context.WithTimeout(context.Background(), 3*time.Second)
 			defer dbCancel()
 
 			document := bson.M{
-				"review_text": text,
+				"review_text":     text,
 				"prediction_code": res.PredictionCode,
-				"sentiment": res.Sentiment,
-				"confidence": res.Confidence,
-				"created_at": time.Now(),
+				"sentiment":       res.Sentiment,
+				"confidence":      res.Confidence,
+				"created_at":      time.Now(),
 			}
 			
 			_, insertErr := mongoCollection.InsertOne(dbCtx, document)
 			if insertErr != nil {
-				log.Printf("[MLOps Error] Failed to log review to MongoDB: %v", insertErr)
+				log.Printf("[MLOps Error] Failed to upload asynchronous review log to Atlas: %v", insertErr)
 			}
 		}(textClean, mlResponse)
 
