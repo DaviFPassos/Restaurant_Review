@@ -137,24 +137,12 @@ const analyzeSentiment = async () => {
     setResult(null);
 
     try {
-      // DevOps Dynamic Clean Mapping:
-      // Pull and clean up environment gateway string to protect against extra trailing slashes
-      let gatewayBaseURL = import.meta.env.VITE_API_GATEWAY_URL || 'http://localhost:8080';
-      
-      // Remove trailing slash if present to avoid dual-slash structural breaks (e.g., http://localhost:8080//api)
-      if (gatewayBaseURL.endsWith('/')) {
-        gatewayBaseURL = gatewayBaseURL.slice(0, -1);
-      }
-      
-      const targetEndpoint = `${gatewayBaseURL}/api/review`;
-      
-      // LOG THE EXACT PACKET DESTINATION FOR DISCOVERING CORS/ROUTING BREACHES
-      console.log("[DevOps Debug] Dispatched network packet target destination:", targetEndpoint);
-
+      // Use relative URL - proxy in vite.config.js routes /api/* to gateway-service
+      // This works for both localhost and ngrok access
       const response = await fetch('/api/review', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ review_text: review })
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ review_text: review })
       });
 
       const json = await response.json();

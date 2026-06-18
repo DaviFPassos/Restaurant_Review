@@ -7,10 +7,19 @@ export default defineConfig({
   server: {
     port: 5173,
     host: '0.0.0.0',
+    proxy: {
+      '/api': {
+        target: 'http://gateway-service:8080',
+        changeOrigin: true,
+        rewrite: (path) => path
+      }
+    },
     // Allowed hosts block uses environment variable for security (configure via .env)
     allowedHosts: [
-      process.env.VITE_NGROK_HOST || 'localhost'
-    ],
+      'localhost',
+      '.ngrok-free.dev',
+      process.env.VITE_NGROK_HOST || undefined
+    ].filter(Boolean),
     // HMR configuration prevents WebSocket connection errors over HTTPS
     hmr: process.env.VITE_NGROK_HOST ? {
       host: process.env.VITE_NGROK_HOST,
@@ -19,3 +28,4 @@ export default defineConfig({
     } : undefined
   }
 })
+
