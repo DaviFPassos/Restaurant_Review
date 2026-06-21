@@ -69,7 +69,7 @@ func initMongoDB() {
 	}
 
 	// Defines database 'restaurant_db' and collection 'reviews'
-	mongoCollection = client.Database("restaurant_db").Collection("reviews")
+	mongoCollection = client.Database("restaurant_review_db").Collection("reviews_history")
 	log.Println("Successfully connected to MongoDB!")
 }
 

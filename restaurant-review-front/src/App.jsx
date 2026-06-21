@@ -48,14 +48,14 @@ const styles = {
     marginBottom: '8px',
     fontFamily: 'system-ui, sans-serif'
   },
-textarea: { 
+  textarea: { 
     width: '100%', 
     height: '120px', 
     padding: '14px', 
     borderRadius: '8px', 
-    border: '2px solid #dc143c', // Distinct Crimson border [cite: 564]
+    border: '2px solid #dc143c', // Distinct Crimson border
     fontSize: '16px', 
-    color: '#2d2122',           
+    color: '#2d2122',          
     fontFamily: 'system-ui, sans-serif',
     resize: 'none', 
     marginBottom: '20px', 
@@ -137,7 +137,9 @@ export default function App() {
     setResult(null);
 
     try {
-      const response = await fetch('http://localhost:8080/api/review', {
+      // DevOps Best Practice: Relative URL endpoint mapping
+      // Vite Dev Server Proxy will catch this '/api' path and forward it to gateway-service:8080
+      const response = await fetch('/api/review', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ review_text: review })
@@ -151,7 +153,7 @@ export default function App() {
         setError(json.error || 'An error occurred while processing the request.');
       }
     } catch (err) {
-      setError('Could not connect to Go Gateway. Please check if your Docker containers are active.');
+      setError('Could not connect to Go Gateway. Please ensure ports or dynamic tunnels are actively exposed.');
     } finally {
       setLoading(false);
     }

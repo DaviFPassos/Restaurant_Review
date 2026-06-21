@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # NoSQL Database for Data Persistence and MLOps logging
+  # NoSQL Database for Data Persistence and MLOps logging (Optional Local Fallback)
   mongodb:
     image: mongo:latest
     container_name: mongodb_restaurant
@@ -41,13 +41,14 @@ services:
       # Point to ML service using Docker network DNS
       # "http://ml-service:8000" resolves within Docker network
       - ML_SERVICE_URL=http://ml-service:8000/v1/predict
-      # Connecting to MongoDB container using service name DNS resolution
-      - MONGO_URI=mongodb://mongodb:27017
       # Enable Gin release mode for optimal performance
       - GIN_MODE=release
     depends_on:
       # Ensure ML service starts before gateway
       - ml-service
+    env_file:
+      # Injects cloud MONGO_URI string into Go runtime from remote .env file
+      - .env
     networks:
       - restaurant-network
     restart: always
